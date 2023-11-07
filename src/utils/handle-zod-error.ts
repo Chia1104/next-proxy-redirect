@@ -26,9 +26,9 @@ const handleZodError = <T = unknown>({
   onFinally,
 }: HandleZodErrorOptions<T>): HandleZodErrorReturn => {
   try {
-    preParse?.((data as T));
-    schema.parse((data as T));
-    postParse?.((data as T));
+    preParse?.(data as T);
+    schema.parse(data as T);
+    postParse?.(data as T);
     return {
       message: "",
       isError: false,
