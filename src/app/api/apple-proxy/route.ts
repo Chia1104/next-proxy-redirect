@@ -5,9 +5,9 @@ import { z } from "zod";
 import handleZodError from "@/utils/handle-zod-error";
 
 const appleFormPostRequestSchema = z.object({
-  state: z.string(),
-  code: z.string(),
-  id_token: z.string(),
+  state: z.string().min(1),
+  code: z.string().min(1),
+  id_token: z.string().min(1),
 });
 
 type AppleFormPostRequest = z.infer<typeof appleFormPostRequestSchema>;
@@ -16,9 +16,13 @@ export const runtime = "edge";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const payload: AppleFormPostRequest = await req.json();
-    const { isError, issues } = handleZodError({
-      data: payload,
+    const formData = await req.formData();
+    const { isError, issues } = handleZodError<Partial<AppleFormPostRequest>>({
+      data: {
+        state: formData.get("state")?.toString(),
+        code: formData.get("code")?.toString(),
+        id_token: formData.get("id_token")?.toString(),
+      },
       schema: appleFormPostRequestSchema,
     });
     if (isError) {
@@ -39,9 +43,9 @@ export const POST = async (req: NextRequest) => {
       new URL(
         setSearchParams(
           {
-            state: payload.state,
-            code: payload.code,
-            id_token: payload.id_token,
+            state: formData.get("state")?.toString(),
+            code: formData.get("code")?.toString(),
+            id_token: formData.get("id_token")?.toString(),
           },
           {
             baseUrl: "/callback/apple",
