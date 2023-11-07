@@ -16,12 +16,12 @@ export const runtime = "edge";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const formData = await req.formData();
+    const payload: AppleFormPostRequest = await req.json();
     const { isError, issues } = handleZodError<Partial<AppleFormPostRequest>>({
       data: {
-        state: formData.get("state")?.toString(),
-        code: formData.get("code")?.toString(),
-        id_token: formData.get("id_token")?.toString(),
+        state: payload.state,
+        code: payload.code,
+        id_token: payload.id_token,
       },
       schema: appleFormPostRequestSchema,
     });
@@ -43,16 +43,19 @@ export const POST = async (req: NextRequest) => {
       new URL(
         setSearchParams(
           {
-            state: formData.get("state")?.toString(),
-            code: formData.get("code")?.toString(),
-            id_token: formData.get("id_token")?.toString(),
+            state: payload.state,
+            code: payload.code,
+            id_token: payload.id_token,
           },
           {
             baseUrl: "/callback/apple",
           }
         ),
         req.url
-      )
+      ),
+      {
+        status: 302,
+      }
     );
   } catch (err) {
     console.error(err);
